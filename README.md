@@ -1,7 +1,7 @@
 ### Compilation ###
 
 To install the C/CUDA functions, clone
-(torch-jhu-ext)[https://bitbucket.org/noandrews/torch-jhu-ext] and
+[torch-jhu-ext](https://bitbucket.org/noandrews/torch-jhu-ext) and
 from that directory install via
 
 ```
