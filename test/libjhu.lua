@@ -49,10 +49,12 @@ local tests = {
       local N1 = torch.multinomial(P, N, true)
       local S1 = N1:double():sum() / N
       local logP = P:log()
-      local tmp = torch.zeros(1):double()
-      local N2 = torch.zeros(1):double()
+      -- local tmp = torch.zeros(1):double()
+      -- local N2 = torch.zeros(1):double()
+      local tmp = torch.LongTensor(1):zero()
+      local N2 = torch.LongTensor(1):zero()
       for n = 1, N do
-         tmp.jhu.logsample(logP:clone(), tmp)
+         logP.jhu.logsample(logP:clone(), tmp)
          N2:add(tmp)
       end
       local S2 = N2[1] / N
@@ -77,8 +79,9 @@ local tests = {
    end,
    LogSampleEdgeCase = function()
       local lnP = torch.DoubleTensor({-math.huge, -math.huge, -math.huge, -math.huge, 0})
-      local result = torch.DoubleTensor(1)
-      result.jhu.logsample(lnP, result)
+      --local result = torch.DoubleTensor(1)
+      local result = torch.LongTensor(1)
+      lnP.jhu.logsample(lnP, result)
       tester:assert(result[1] == 5, "error with edge case")
    end,
    LogSampleNormalized = function()
@@ -89,18 +92,20 @@ local tests = {
          local Z = P[d]:sum()
          P[d]:div(Z)
       end
-      
+
       -- Take some samples for the distributions in probability space:
       local N1 = torch.multinomial(P, N, true)
       local S1 = N1:double():sum(2):div(N)
 
       -- Now convert to log space
       local logP = torch.log(P)
-      local tmp = torch.zeros(D):double()
-      local N2 = torch.zeros(D):double()
+      -- local tmp = torch.zeros(D):long()
+      local N2 = torch.zeros(D)
+      local tmp = torch.LongTensor(D):zero()
+      --local N2 = torch.LongTensor(D):zero()
       for n = 1, N do
-         tmp.jhu.logsample(logP:clone(), tmp)
-         N2:add(tmp)
+         logP.jhu.logsample(logP:clone(), tmp)
+         N2:add(tmp:double())
       end
       local S2 = N2:div(N)
 
@@ -115,7 +120,7 @@ local tests = {
          local Z = P[d]:sum()
          P[d]:div(Z)
       end
-      
+
       -- Take some samples for the distributions in probability space:
       local N1 = torch.multinomial(P, N, true)
       local S1 = N1:double():sum(2):div(N)
@@ -142,11 +147,13 @@ local tests = {
 
       -- Now convert to log space
       local logP = torch.log(P)
-      local tmp = torch.zeros(D):double()
-      local N2 = torch.zeros(D):double()
+      -- local tmp = torch.zeros(D):double()
+      local N2 = torch.zeros(D)
+      local tmp = torch.LongTensor(D):zero()
+      --local N2 = torch.LongTensor(D):zero()
       for n = 1, N do
-         tmp.jhu.logsample(logP:clone(), tmp)
-         N2:add(tmp)
+         logP.jhu.logsample(logP:clone(), tmp)
+         N2:add(tmp:double())
       end
       local S2 = N2:div(N)
 
@@ -182,7 +189,7 @@ local tests = {
       logP.jhu.logscale(logP)
       local diff = math.abs(logP:sum()-1.0)
       tester:assert(diff < 1e-3, 'bad log sum: err='..diff)
-      
+
       -- Matrix
       local P = torch.DoubleTensor(D, D):uniform(0, 1)
       local logP = torch.log(P)
@@ -197,7 +204,7 @@ local tests = {
       P.jhu.scale(P)
       local diff = math.abs(P:sum()-1.0)
       tester:assert(diff < 1e-3, 'bad log sum: err='..diff)
-      
+
       -- Matrix
       local P = torch.DoubleTensor(D, D):uniform(0, 1)
       P.jhu.logscale(P)

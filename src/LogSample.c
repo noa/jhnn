@@ -16,7 +16,7 @@
 /*                                                              "torch.DoubleTensor"); */
 
 /*   THDoubleTensor_multinomial(output, gen, input, 1,  */
-  
+
 /*   return 0; */
 /* } */
 
@@ -27,9 +27,12 @@ static int jhu_THLogSample(lua_State *L) {
 
   THDoubleTensor *input = (THDoubleTensor *)luaT_checkudata(L, 1,
                                                             "torch.DoubleTensor");
-  THDoubleTensor *output = (THDoubleTensor *)luaT_checkudata(L, 2,
-                                                             "torch.DoubleTensor");
-  
+
+  /* THDoubleTensor *output = (THDoubleTensor *)luaT_checkudata(L, 2, */
+  /*                                                            "torch.DoubleTensor"); */
+
+  THLongTensor *output = (THLongTensor *)luaT_checkudata(L, 2, "torch.LongTensor");
+
   double *input_data, *output_data;
   long nframe = 0, dim = 0;
   long t, d;
@@ -37,23 +40,23 @@ static int jhu_THLogSample(lua_State *L) {
   if (input->nDimension == 1) {
     nframe = 1;
     dim = input->size[0];
-    THAssert( THDoubleTensor_size(output, 0) == 1 );
+    THAssert( THLongTensor_size(output, 0) == 1 );
   }
   else if (input->nDimension == 2) {
     nframe = input->size[0];
     dim = input->size[1];
-    THAssert( THDoubleTensor_size(output, 0) == nframe );
+    THAssert( THLongTensor_size(output, 0) == nframe );
   }
   else {
     THArgCheck(0, 2, "vector or matrix expected");
   }
 
   THAssert( THDoubleTensor_isContiguous(input)  );
-  THAssert( THDoubleTensor_isContiguous(output) );
+  THAssert( THLongTensor_isContiguous(output) );
 
   double *input_data0  = THDoubleTensor_data(input);
-  double *output_data0 = THDoubleTensor_data(output);
-  
+  long *output_data0 = THLongTensor_data(output);
+
 #pragma omp parallel for private(t, d, input_data, output_data)
   for (t = 0; t < nframe; ++t) {
     input_data  = input_data0  + dim*t;
@@ -74,7 +77,7 @@ static int jhu_THLogSample(lua_State *L) {
     int mid_pointer;
     double cum_prob;
     int sample_idx;
-    
+
     while(right_pointer - left_pointer > 0) {
       mid_pointer = left_pointer + (right_pointer - left_pointer) / 2;
       THAssert( mid_pointer >= 0  );
@@ -90,7 +93,7 @@ static int jhu_THLogSample(lua_State *L) {
     sample_idx = left_pointer;
     output_data0[t] = sample_idx + 1; /* increment by 1 for lua compat */
   }
-  
+
   return 0;
 }
 

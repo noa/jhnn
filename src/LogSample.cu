@@ -128,7 +128,7 @@ void jhu_cuda_log_sample(struct THCState *state,
   
   THAssert(THCudaTensor_checkGPU(state, 2, self, prob_dist));
   if (state->rngState->current_gen == NULL) {
-    THError("Random number generators have not been initialized.");
+      THError("Random number generators have not been initialized.");
   }
   
   int inputSize = THCudaTensor_nDimension(state, prob_dist);
