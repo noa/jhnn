@@ -84,6 +84,15 @@ local tests = {
       lnP.jhu.logsample(lnP, result)
       tester:assert(result[1] == 5, "error with edge case")
    end,
+   LogSampleEdgeCaseTwo = function()
+      local x = torch.DoubleTensor({-math.huge, -math.huge, -math.huge, -0.5})
+      local y = torch.DoubleTensor(1,1)
+      local x = x:view(1,4)
+      x.jhu.logsum(x,y)
+      local z = y[1][1]
+      assert(type(z) == 'number')
+      assert(not (z ~= z), "NaN result!") -- check not NaN
+   end,
    LogSampleNormalized = function()
       local D = 10
       local N = 50000

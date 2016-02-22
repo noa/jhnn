@@ -55,6 +55,15 @@ local tests = {
       result.jhu.logsample(lnP, result)
       tester:assert(result[1] == 5, "error with edge case")
    end,
+   LogSampleEdgeCaseTwo = function()
+      local x = torch.Tensor({-math.huge, -math.huge, -math.huge, -0.5}):cuda()
+      local y = torch.Tensor(1, 1):cuda()
+      local x = x:view(1, 4)
+      x.jhu.logsum(x, y)
+      local z = y[1][1]
+      assert(type(z) == 'number')
+      assert(not (z ~= z), "NaN result!") -- check not NaN
+   end,
    Sample1D = function()
       local D = 10
       local N = 50000
@@ -81,7 +90,7 @@ local tests = {
          local Z = P[d]:sum()
          P[d]:div(Z)
       end
-      
+
       -- Take some samples for the distributions in probability space:
       local N1 = torch.multinomial(P, N, true)
       local S1 = N1:double():sum(2):div(N)
@@ -109,7 +118,7 @@ local tests = {
          local Z = P[d]:sum()
          P[d]:div(Z)
       end
-      
+
       -- Take some samples for the distributions in probability space:
       local N1 = torch.multinomial(P, N, true)
       local S1 = N1:double():sum(2):div(N)
@@ -176,7 +185,7 @@ local tests = {
       logP.jhu.logscale(logP)
       local diff = math.abs(logP:sum()-1.0)
       tester:assert(diff < 1e-3, 'bad log sum: err='..diff)
-      
+
       -- Matrix
       local P = torch.DoubleTensor(D, D):uniform(0, 1):cuda()
       local logP = torch.log(P)
@@ -191,7 +200,7 @@ local tests = {
       P.jhu.scale(P)
       local diff = math.abs(P:sum()-1.0)
       tester:assert(diff < 1e-3, 'bad log sum: err='..diff)
-      
+
       -- Matrix
       local P = torch.DoubleTensor(D, D):uniform(0, 1):cuda()
       P.jhu.scale(P)
