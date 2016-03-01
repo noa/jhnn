@@ -2,14 +2,13 @@ package = "jhu"
 version = "scm-1"
 
 source = {
-   url = "git://bitbucket.com/noandrews/icml2016.git",
+   url = "git://bitbucket.com/noandrews/torch-jhu-ext.git",
 }
 
 description = {
-   summary = "Torch extensions by researchers @ Johns Hopkins University",
-   detailed = [[
-   ]],
-   homepage = "https://bitbucket.org/noandrews/jhu",
+   summary = "Torch extensions by researchers at Johns Hopkins University",
+   detailed = [[]],
+   homepage = "https://bitbucket.org/noandrews/torch-jhu-ext",
    license = "MIT"
 }
 
