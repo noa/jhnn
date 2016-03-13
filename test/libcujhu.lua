@@ -12,8 +12,10 @@ function mytest.LogSum()
    -- 2D case (d1=batch, d2=dim)
    local D = 4
    local input  = torch.DoubleTensor(D,D):normal(0, 1):cuda()
+   local inputCopy = input:clone()
    local output = torch.DoubleTensor(D):cuda()
    input.jhu.logsum(input, output)
+   tester:eq(input, inputCopy, 1e-4)
    input:exp()
    output:exp()
    for b = 1, D do
