@@ -77,7 +77,38 @@ void JHNN_(LookupTable_accGradParameters)(
     JHNN_(LookupTable_resetCount)(count_data, input);
   }
 
-  // TODO: add the OpenMP loop back in
+#ifdef _OPENMP
+  if (numel > 1000) {
+      // The strategy is to parallelize over sections of the vocabulary, so that
+      // thread 1 handles updates to gradWeight[0..nVocab/nThreads]. Every thread
+      // has to traverse the entire input, but the dominating factor is the axpy
+      // BLAS call.
+#pragma omp parallel private(i)
+    {
+      int tid = omp_get_thread_num();
+      int nthreads = omp_get_num_threads();
+      
+      long start = tid * (numw/nthreads + 1);
+      long end = start + (numw/nthreads + 1);
+      
+      for (ij=0; ij<numel; ij++) {
+        if (input_data[i] != paddingValue) {
+          i = ij / numj;
+          j = ij % numj;
+          long k = input_data[ij] - 1;
+          if (k >= start && k < end) {
+            real scale_ = scale_data[i];
+            if (count_data) scale_ /= count_data[k];
+            THBlas_(axpy)(stride, scale_, go + i*stride, 1, gw + k*stride, 1);
+          }
+        }
+      }
+    }
+    
+    THTensor_(free)(gradOutput);
+    return;
+  }
+#endif
   
   for (i=0; i<numi; i++) {
     for (j=0; j<numj; j++) {
