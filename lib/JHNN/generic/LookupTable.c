@@ -47,12 +47,12 @@ void JHNN_(LookupTable_accGradParameters)(
   if (!THTensor_(isContiguous)(scale))
     THError("scale must be contiguous");
   if (THIndexTensor_(nDimension)(input) != 2)
-    THError("input must be matrix");
+    THError("input must be matrix but input dim = %d", THIndexTensor_(nDimension)(input));
 
-  long numi = THIndexTensor_(size)(input, 1);
-  long numj = THIndexTensor_(size)(input, 2);
-  
-  if (numi != THTensor_(size)(scale, 1))
+  long numi = THIndexTensor_(size)(input, 0);
+  long numj = THIndexTensor_(size)(input, 1);
+
+  if (numi != THTensor_(size)(scale, 0))
     THError("size mismatch between input and scale");
 
   THIndex_t *input_data = THIndexTensor_(data)(input);

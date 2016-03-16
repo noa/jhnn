@@ -14,27 +14,27 @@ function mytest.weightedGradUpdate()
    local idim = 5
    local odim = 3
    local batchSize = 4
-   local batchLen = 2
+   local batchLen = 1
    local input = torch.LongTensor(batchSize, batchLen):random(1, idim)
    local module = nn.LookupTable(idim, odim)
    local refGradWeight = module.gradWeight:clone():zero()
 
-   print('input:')
-   print(input)
+   --print('input:')
+   --print(input)
    
    for b = 1, weights:size(1) do
       module:zeroGradParameters()
-      module:forward(input[b])
+      local out = module:forward(input[b])
+      --print(out)
       local dout = module.output.new():resizeAs(module.output)
       dout:fill(1)
       local din = module:backward(input[b], dout, weights[b])
       refGradWeight:add(module.gradWeight)
    end
 
-   print('input:')
-   print(input)
+   --print('input ndim = ' .. input:nDimension())
    
-   local module = jhu.LookupTable(batchSize, batchLen)
+   local module = jhu.LookupTable(idim, odim)
    module:zeroGradParameters()
    module:forward(input)
    local dout = module.output.new():resizeAs(module.output)
