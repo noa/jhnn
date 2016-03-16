@@ -3,8 +3,6 @@
 To install the C/CUDA functions:
 
 ```
-#!bash
-
 $ luarocks make
 ```
 
@@ -14,7 +12,5 @@ CUDA installed, only the CPU version `libjhu` is built.
 Then run tests:
 
 ```
-#!bash
-
 $ ./run_all_tests.sh
 ```
