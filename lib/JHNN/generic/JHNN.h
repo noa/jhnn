@@ -12,6 +12,6 @@ TH_API void JHNN_(LookupTable_accGradParameters)(
           THTensor *indices,
           bool scaleGradByFreq,
           int paddingValue,
-          real scale);
+          THTensor *scale);
 
 #endif

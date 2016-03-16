@@ -106,7 +106,7 @@ function LookupTable:accGradParameters(input, gradOutput, scale)
          THNN.optionalTensor(self._indices),
          self.shouldScaleGradByFreq or false,
          self.paddingValue or 0,
-         scale or 1
+         scale:cdata()
       )
    end
 end

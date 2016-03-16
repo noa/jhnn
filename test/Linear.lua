@@ -8,7 +8,6 @@ local mytest = torch.TestSuite()
 local mytester = torch.Tester()
 
 local precision = 1e-5
-local expprecision = 1e-4
 
 function mytest.weightedGradUpdate()
    local weights = torch.DoubleTensor({0.1,2,1,0.5})

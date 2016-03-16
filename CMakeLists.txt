@@ -11,13 +11,7 @@ FILE(WRITE JHNN_h.lua "return [[")
 FILE(APPEND JHNN_h.lua ${JHNN_headers})
 FILE(APPEND JHNN_h.lua "]]")
 
-FILE(GLOB luasrc)
-
-SET(luasrc
-  init.lua
-  Linear.lua
-  LookupTable.lua
-  )
+FILE(GLOB luasrc *.lua)
 
 ADD_TORCH_PACKAGE(jhu "" "${luasrc}")
 
