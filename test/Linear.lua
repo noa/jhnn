@@ -145,7 +145,6 @@ end
 
 -- randomize stuff
 local seed = seed or os.time()
-print('Seed: ', seed)
 math.randomseed(seed)
 torch.manualSeed(seed)
 mytester:add(mytest):run()
