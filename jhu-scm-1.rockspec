@@ -2,19 +2,18 @@ package = "jhu"
 version = "scm-1"
 
 source = {
-   url = "git://bitbucket.com/noandrews/torch-jhu-ext.git",
+   url = "https://github.com/noa/torch-jhu.git",
 }
 
 description = {
    summary = "Torch extensions by researchers at Johns Hopkins University",
    detailed = [[]],
-   homepage = "https://bitbucket.org/noandrews/torch-jhu-ext",
+   homepage = "https://github.com/noa/torch-jhu",
    license = "MIT"
 }
 
 dependencies = {
-   "torch >= 7.0",
-   "totem"
+   "torch >= 7.0"
 }
 
 build = {
