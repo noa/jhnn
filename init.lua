@@ -1,8 +1,9 @@
-require 'torch'
-require 'nn'
+require('torch')
+require('nn')
 
 jhu = {}
 
-torch.include('jhu', 'Linear.lua')
+require('jhu.Linear')
+require('jhu.LookupTable')
 
 return jhu

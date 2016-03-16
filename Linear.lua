@@ -100,7 +100,7 @@ function Linear:accGradParameters(input, gradOutput, scale)
       end
    else
       if input:dim() == 1 then
-         error("vector scale on 1D input")
+         error("vector scale on 1D input; did you mean to pass in 2D input or a scalar scale?")
       elseif input:dim() == 2 then
          if self.scaledGradOutput == nil then
             self.scaledGradOutput = gradOutput:clone()
@@ -108,7 +108,7 @@ function Linear:accGradParameters(input, gradOutput, scale)
             self.scaledGradOutput:resizeAs(gradOutput)
          end
          if self.scaledGradOutput:size(1) ~= scale:size(1) then
-            error("size mismatch")
+            error("number of batches doesn't agree with number of weights")
          end
          for i = 1, scale:size(1) do
             self.scaledGradOutput[i]:mul(scale[i])
