@@ -6,7 +6,7 @@ source = {
 }
 
 description = {
-   summary = "Torch extensions by researchers at Johns Hopkins University",
+   summary = "Torch extensions",
    detailed = [[]],
    homepage = "https://github.com/noa/torch-jhu",
    license = "MIT"

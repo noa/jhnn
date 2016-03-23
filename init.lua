@@ -3,6 +3,7 @@ require('nn')
 
 jhu = {}
 
+require('jhu.JH')
 require('jhu.JHNN')
 
 require('jhu.ErrorMessages')

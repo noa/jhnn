@@ -1,17 +1,17 @@
 local ffi = require 'ffi'
 
-local JHNN = {}
+local JH = {}
 
-local generic_JHNN_h = require 'jhu.JHNN_h'
+local generic_JH_h = require 'jhu.JH_h'
 -- strip all lines starting with #
 -- to remove preprocessor directives originally present
--- in JHNN.h
-generic_JHNN_h = generic_JHNN_h:gsub("\n#[^\n]*", "")
-generic_JHNN_h = generic_JHNN_h:gsub("^#[^\n]*\n", "")
+-- in JH.h
+generic_JH_h = generic_JH_h:gsub("\n#[^\n]*", "")
+generic_JH_h = generic_JH_h:gsub("^#[^\n]*\n", "")
 
 -- THGenerator struct declaration copied from torch7/lib/TH/THRandom.h
 local base_declarations = [[
-typedef void JHNNState;
+typedef void JHState;
 
 typedef struct {
   unsigned long the_initial_seed;
@@ -42,13 +42,13 @@ if not package.searchpath then
    end
 end
 
--- load libJHNN
-JHNN.C = ffi.load(package.searchpath('libJHNN', package.cpath))
+-- load libJH
+JH.C = ffi.load(package.searchpath('libJH', package.cpath))
 
 ffi.cdef(base_declarations)
 
--- expand macros, allow to use original lines from lib/JHNN/generic/JHNN.h
-local preprocessed = string.gsub(generic_JHNN_h, 'TH_API void JHNN_%(([%a%d_]+)%)', 'void JHNN_TYPE%1')
+-- expand macros, allow to use original lines from lib/JH/generic/JH.h
+local preprocessed = string.gsub(generic_JH_h, 'TH_API void JH_%(([%a%d_]+)%)', 'void JH_TYPE%1')
 
 local replacements =
 {
@@ -82,27 +82,27 @@ for i=1,#replacements do
    ffi.cdef(s)
 end
 
-JHNN.NULL = ffi.NULL or nil
+JH.NULL = ffi.NULL or nil
 
-function JHNN.getState()
+function JH.getState()
    return ffi.NULL or nil
 end
 
-function JHNN.optionalTensor(t)
-   return t and t:cdata() or JHNN.NULL
+function JH.optionalTensor(t)
+   return t and t:cdata() or JH.NULL
 end
 
 local function extract_function_names(s)
    local t = {}
-   for n in string.gmatch(s, 'TH_API void JHNN_%(([%a%d_]+)%)') do
+   for n in string.gmatch(s, 'TH_API void JH_%(([%a%d_]+)%)') do
       t[#t+1] = n
    end
    return t
 end
 
-function JHNN.bind(lib, base_names, type_name, state_getter)
+function JH.bind(lib, base_names, type_name, state_getter)
    local ftable = {}
-   local prefix = 'JHNN_' .. type_name
+   local prefix = 'JH_' .. type_name
    for i,n in ipairs(base_names) do
       -- use pcall since some libs might not support all functions (e.g. cunn)
       local ok,v = pcall(function() return lib[prefix .. n] end)
@@ -116,17 +116,17 @@ function JHNN.bind(lib, base_names, type_name, state_getter)
 end
 
 -- build function table
-local function_names = extract_function_names(generic_JHNN_h)
+local function_names = extract_function_names(generic_JH_h)
 
-JHNN.kernels = {}
-JHNN.kernels['torch.FloatTensor'] = JHNN.bind(JHNN.C, function_names, 'Float', JHNN.getState)
-JHNN.kernels['torch.DoubleTensor'] = JHNN.bind(JHNN.C, function_names, 'Double', JHNN.getState)
+JH.kernels = {}
+JH.kernels['torch.FloatTensor'] = JH.bind(JH.C, function_names, 'Float', JH.getState)
+JH.kernels['torch.DoubleTensor'] = JH.bind(JH.C, function_names, 'Double', JH.getState)
 
-torch.getmetatable('torch.FloatTensor').JHNN = JHNN.kernels['torch.FloatTensor']
-torch.getmetatable('torch.DoubleTensor').JHNN = JHNN.kernels['torch.DoubleTensor']
+torch.getmetatable('torch.FloatTensor').JH = JH.kernels['torch.FloatTensor']
+torch.getmetatable('torch.DoubleTensor').JH = JH.kernels['torch.DoubleTensor']
 
-function JHNN.runKernel(f, type, ...)
-   local ftable = JHNN.kernels[type]
+function JH.runKernel(f, type, ...)
+   local ftable = JH.kernels[type]
    if not ftable then
       error('Unsupported tensor type: '..type)
    end
@@ -137,4 +137,4 @@ function JHNN.runKernel(f, type, ...)
    f(...)
 end
 
-return JHNN
+return JH
