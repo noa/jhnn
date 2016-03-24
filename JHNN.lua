@@ -78,7 +78,6 @@ for i=1,#replacements do
    for k,v in pairs(r) do
       s = string.gsub(s, k, v)
    end
-   print(s)
    ffi.cdef(s)
 end
 

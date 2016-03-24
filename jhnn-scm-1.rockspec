@@ -1,14 +1,14 @@
-package = "jhu"
+package = "jhnn"
 version = "scm-1"
 
 source = {
-   url = "https://github.com/noa/torch-jhu.git",
+   url = "https://github.com/noa/jhnn.git",
 }
 
 description = {
    summary = "Torch extensions",
    detailed = [[]],
-   homepage = "https://github.com/noa/torch-jhu",
+   homepage = "https://github.com/noa/jhnn",
    license = "MIT"
 }
 

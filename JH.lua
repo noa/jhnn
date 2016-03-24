@@ -78,6 +78,7 @@ for i=1,#replacements do
    for k,v in pairs(r) do
       s = string.gsub(s, k, v)
    end
+   print('cdef:')
    print(s)
    ffi.cdef(s)
 end
@@ -107,7 +108,7 @@ function JH.bind(lib, base_names, type_name, state_getter)
       -- use pcall since some libs might not support all functions (e.g. cunn)
       local ok,v = pcall(function() return lib[prefix .. n] end)
       if ok then
-         ftable[n] = function(...) v(state_getter(), ...) end   -- implicitely add state
+         ftable[n] = function(...) v(state_getter(), ...) end -- implicitely add state
       else
          print('not found: ' .. prefix .. n .. v)
       end
@@ -115,7 +116,7 @@ function JH.bind(lib, base_names, type_name, state_getter)
    return ftable
 end
 
--- build function table
+-- build function table from the definitions in JH.h
 local function_names = extract_function_names(generic_JH_h)
 
 JH.kernels = {}
