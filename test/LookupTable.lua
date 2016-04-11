@@ -2,7 +2,7 @@
 
 require('torch')
 require('nn')
-require('jhu')
+require('jhnn')
 
 local mytest = torch.TestSuite()
 local mytester = torch.Tester()
@@ -34,7 +34,7 @@ function mytest.weightedGradUpdate()
 
    --print('input ndim = ' .. input:nDimension())
    
-   local module = jhu.LookupTable(idim, odim)
+   local module = jhnn.LookupTable(idim, odim)
    module:zeroGradParameters()
    module:forward(input)
    local dout = module.output.new():resizeAs(module.output)
@@ -99,15 +99,15 @@ function mytest.LookupTable()
    end
    -- test without padding
    local input = torch.randperm(totalIndex):narrow(1,1,nIndex):int()
-   local module = jhu.LookupTable(totalIndex, entry_size)
+   local module = jhnn.LookupTable(totalIndex, entry_size)
    dotest(module, input, 1, totalIndex)
    -- test with padding set to 1, but no padding in inputs
    local input = torch.randperm(totalIndex):narrow(1,1,nIndex):int()
-   local module = jhu.LookupTable(totalIndex, entry_size, 1)
+   local module = jhnn.LookupTable(totalIndex, entry_size, 1)
    dotest(module, input, 2, totalIndex)
    -- test whether padding weights remain unchanged
    local paddingValue = math.random(totalIndex)
-   local module = jhu.LookupTable(totalIndex, entry_size, paddingValue)
+   local module = jhnn.LookupTable(totalIndex, entry_size, paddingValue)
    local padw = module.weight:select(1,paddingValue):fill(1)
    local padw_sum = padw:sum()
    local input = torch.IntTensor(nIndex)

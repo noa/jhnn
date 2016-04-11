@@ -1,4 +1,4 @@
-local Linear, parent = torch.class('jhu.Linear', 'nn.Module')
+local Linear, parent = torch.class('jhnn.Linear', 'nn.Module')
 
 function Linear:__init(inputSize, outputSize, bias)
    parent.__init(self)

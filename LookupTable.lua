@@ -1,7 +1,7 @@
 -- luacheck: globals torch
 
 local THNN = require 'nn.THNN'
-local LookupTable, parent = torch.class('jhu.LookupTable', 'nn.Module')
+local LookupTable, parent = torch.class('jhnn.LookupTable', 'nn.Module')
 
 LookupTable.__version = 4
 

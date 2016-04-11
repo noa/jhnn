@@ -2,7 +2,7 @@ local ffi = require 'ffi'
 
 local JHNN = {}
 
-local generic_JHNN_h = require 'jhu.JHNN_h'
+local generic_JHNN_h = require 'jhnn.JHNN_h'
 -- strip all lines starting with #
 -- to remove preprocessor directives originally present
 -- in JHNN.h

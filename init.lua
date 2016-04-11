@@ -1,14 +1,14 @@
 require('torch')
 require('nn')
 
-jhu = {}
+jhnn = {}
 
-require('jhu.JH')
-require('jhu.JHNN')
+require('jhnn.JH')
+require('jhnn.JHNN')
 
-require('jhu.ErrorMessages')
+require('jhnn.ErrorMessages')
 
-require('jhu.Linear')
-require('jhu.LookupTable')
+require('jhnn.Linear')
+require('jhnn.LookupTable')
 
-return jhu
+return jhnn

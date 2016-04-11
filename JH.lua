@@ -2,7 +2,7 @@ local ffi = require 'ffi'
 
 local JH = {}
 
-local generic_JH_h = require 'jhu.JH_h'
+local generic_JH_h = require 'jhnn.JH_h'
 -- strip all lines starting with #
 -- to remove preprocessor directives originally present
 -- in JH.h
@@ -78,8 +78,8 @@ for i=1,#replacements do
    for k,v in pairs(r) do
       s = string.gsub(s, k, v)
    end
-   print('cdef:')
-   print(s)
+   --print('cdef:')
+   --print(s)
    ffi.cdef(s)
 end
 

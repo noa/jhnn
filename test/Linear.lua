@@ -2,7 +2,7 @@
 
 require('torch')
 require('nn')
-require('jhu')
+require('jhnn')
 
 local mytest = torch.TestSuite()
 local mytester = torch.Tester()
@@ -41,7 +41,7 @@ function mytest.weightedGradUpdate()
       refGradBias:add(module.gradBias)
    end
 
-   local module = jhu.Linear(idim, odim)
+   local module = jhnn.Linear(idim, odim)
    module:zeroGradParameters()
    module:forward(input)
    local dout = module.output.new():resizeAs(module.output)
@@ -63,8 +63,8 @@ function mytest.weightedGradUpdateContainer()
    local inputClone = input:clone()
 
    local mlp1 = nn.Sequential()
-   mlp1:add( jhu.Linear(idim, odim) )
-   mlp1:add( jhu.Linear(odim, fdim) )
+   mlp1:add( jhnn.Linear(idim, odim) )
+   mlp1:add( jhnn.Linear(odim, fdim) )
    local param1, refGrad = mlp1:getParameters()
    param1:uniform(-0.1,0.1)
    local paramClone = param1:clone()
@@ -82,8 +82,8 @@ function mytest.weightedGradUpdateContainer()
    end
 
    local mlp2 = nn.Sequential()
-   mlp2:add( jhu.Linear(idim, odim) )
-   mlp2:add( jhu.Linear(odim, fdim) )
+   mlp2:add( jhnn.Linear(idim, odim) )
+   mlp2:add( jhnn.Linear(odim, fdim) )
    local param2, grad = mlp2:getParameters()
    param2:copy(paramClone)
    grad:zero()
@@ -103,7 +103,7 @@ function mytest.Jacobian()
    local jac = nn.Jacobian
 
    for ind, inj in pairs(inj_vals) do
-      local module = jhu.Linear(ini, inj)
+      local module = jhnn.Linear(ini, inj)
 
       -- 1D
       local err = jac.testJacobian(module,input)
