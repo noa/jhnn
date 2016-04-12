@@ -102,7 +102,7 @@ end
 function JHNN.bind(lib, base_names, type_name, state_getter)
    local ftable = {}
    local prefix = 'JHNN_' .. type_name
-   for i,n in ipairs(base_names) do
+   for _,n in ipairs(base_names) do
       -- use pcall since some libs might not support all functions (e.g. cunn)
       local ok,v = pcall(function() return lib[prefix .. n] end)
       if ok then
