@@ -117,11 +117,14 @@ end
 -- build function table
 local function_names = extract_function_names(generic_JHNN_h)
 
+print('[JHNN] function names:')
+print(function_names)
+
 JHNN.kernels = {}
 JHNN.kernels['torch.FloatTensor'] = JHNN.bind(JHNN.C, function_names, 'Float', JHNN.getState)
 JHNN.kernels['torch.DoubleTensor'] = JHNN.bind(JHNN.C, function_names, 'Double', JHNN.getState)
 
-torch.getmetatable('torch.FloatTensor').JHNN = JHNN.kernels['torch.FloatTensor']
+torch.getmetatable('torch.FloatTensor').JHNN  = JHNN.kernels['torch.FloatTensor']
 torch.getmetatable('torch.DoubleTensor').JHNN = JHNN.kernels['torch.DoubleTensor']
 
 function JHNN.runKernel(f, type, ...)

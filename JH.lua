@@ -78,8 +78,6 @@ for i=1,#replacements do
    for k,v in pairs(r) do
       s = string.gsub(s, k, v)
    end
-   --print('cdef:')
-   --print(s)
    ffi.cdef(s)
 end
 
@@ -101,14 +99,19 @@ local function extract_function_names(s)
    return t
 end
 
-function JH.bind(lib, base_names, type_name, state_getter)
+function JH.bind(lib, base_names, type_name)
    local ftable = {}
    local prefix = 'JH_' .. type_name
-   for i,n in ipairs(base_names) do
-      -- use pcall since some libs might not support all functions (e.g. cunn)
+   for _,n in ipairs(base_names) do
+      -- use pcall since some libs might not support all functions
+      -- (e.g. cunn). The pcall function calls its first argument in
+      -- protected mode, so that it catches any errors while the
+      -- function is running. If there are no errors, pcall returns
+      -- true, plus any values returned by the call. Otherwise, it
+      -- returns false, plus the error message.
       local ok,v = pcall(function() return lib[prefix .. n] end)
       if ok then
-         ftable[n] = function(...) v(state_getter(), ...) end -- implicitely add state
+         ftable[n] = function(...) v(...) end -- implicitely add state
       else
          print('not found: ' .. prefix .. n .. v)
       end
@@ -119,23 +122,18 @@ end
 -- build function table from the definitions in JH.h
 local function_names = extract_function_names(generic_JH_h)
 
+print('[JH] function names:')
+print(function_names)
+
 JH.kernels = {}
-JH.kernels['torch.FloatTensor'] = JH.bind(JH.C, function_names, 'Float', JH.getState)
+JH.kernels['torch.FloatTensor']  = JH.bind(JH.C, function_names, 'Float', JH.getState)
 JH.kernels['torch.DoubleTensor'] = JH.bind(JH.C, function_names, 'Double', JH.getState)
 
-torch.getmetatable('torch.FloatTensor').JH = JH.kernels['torch.FloatTensor']
-torch.getmetatable('torch.DoubleTensor').JH = JH.kernels['torch.DoubleTensor']
-
-function JH.runKernel(f, type, ...)
-   local ftable = JH.kernels[type]
-   if not ftable then
-      error('Unsupported tensor type: '..type)
+for _, type in pairs({'torch.FloatTensor', 'torch.DoubleTensor'}) do
+   local mt = torch.getmetatable(type)
+   for k,v in pairs(JH.kernels[type]) do
+      mt[k] = v
    end
-   local f = ftable[f]
-   if not f then
-      error(string.format("Function '%s' not found for tensor type '%s'.", f, type))
-   end
-   f(...)
 end
 
 return JH

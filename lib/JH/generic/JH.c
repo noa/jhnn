@@ -2,7 +2,14 @@
 #define TH_GENERIC_FILE "generic/JH.c"
 #else
 
+void JH_(logsum)(THTensor *input, THTensor *result) {
+  int size = input->nDimension;
+  printf("size = %d\n", size);
+  return;
+}
+
 void JH_(logscale)(THTensor *log_prob_dist) {
+  
   return;
 }
 
