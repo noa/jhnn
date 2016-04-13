@@ -14,7 +14,7 @@ static int jhu_THLogSum(lua_State *L) {
   double *input_data, *output_data;
   long nframe = 0, dim = 0;
   long t, d;
-  
+
   if(input->nDimension == 1) {
     nframe = 1;
     dim = input->size[0];
@@ -31,7 +31,7 @@ static int jhu_THLogSum(lua_State *L) {
 
   THAssert( THDoubleTensor_isContiguous(input)  );
   THAssert( THDoubleTensor_isContiguous(output) );
-  
+
   double *input_data0  = THDoubleTensor_data(input);
   double *output_data0 = THDoubleTensor_data(output);
 
@@ -40,20 +40,20 @@ static int jhu_THLogSum(lua_State *L) {
 #pragma omp parallel for private(t, d, maxInput, logsum, input_data, output_data)
   for (t = 0; t < nframe; t++) {
     logsum = 0;
-    maxInput = -THInf;
+    maxInput = -DBL_MAX;
     input_data = input_data0 + dim*t;
     output_data = output_data0 + dim*t;
-    
+
     for (d = 0; d < dim; d++)
       maxInput = THMax(maxInput, input_data[d]);
-    
+
     for (d = 0; d < dim; d++)
       logsum += THExpMinusApprox(maxInput-input_data[d]);
     logsum = maxInput + log(logsum);
-    
+
     output_data0[t] = logsum;
   }
-  
+
   return 0;
 }
 
