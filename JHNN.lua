@@ -99,16 +99,30 @@ local function extract_function_names(s)
    return t
 end
 
+-- The CUDA Torch state is the first argument for all the JHCUNN
+-- methods; this bind method automatically adds it to all call from
+-- Lua.
 function JHNN.bind(lib, base_names, type_name, state_getter)
    local ftable = {}
+
+   -- print('lib')
+   -- print(lib)
+   -- print('base_names')
+   -- print(base_names)
+   -- print('type_name')
+   -- print(type_name)
+
    local prefix = 'JHNN_' .. type_name
-   for _,n in ipairs(base_names) do
+   for _, n in ipairs(base_names) do
       -- use pcall since some libs might not support all functions (e.g. cunn)
       local ok,v = pcall(function() return lib[prefix .. n] end)
+      --print(prefix .. n)
+      --print('v')
+      --print(v)
       if ok then
          ftable[n] = function(...) v(state_getter(), ...) end   -- implicitely add state
       else
-         print('not found: ' .. prefix .. n .. v)
+         error('not found: ' .. prefix .. n .. v)
       end
    end
    return ftable
@@ -117,8 +131,8 @@ end
 -- build function table
 local function_names = extract_function_names(generic_JHNN_h)
 
-print('[JHNN] function names:')
-print(function_names)
+--print('[JHNN] function names:')
+--print(function_names)
 
 JHNN.kernels = {}
 JHNN.kernels['torch.FloatTensor'] = JHNN.bind(JHNN.C, function_names, 'Float', JHNN.getState)

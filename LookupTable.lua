@@ -78,15 +78,16 @@ function LookupTable:accGradParameters(input, gradOutput, scale)
        self._gradOutput:resizeAs(gradOutput):copy(gradOutput)
        gradOutput = self._gradOutput
    end
-   
+
+   if input:dim() == 2 then
+      input = input:view(-1)
+   elseif input:dim() ~= 1 then
+      error("input must be a vector or matrix")
+   end
+
    scale = scale or 1
+
    if type(scale) == 'number' then
-      if input:dim() == 2 then
-         input = input:view(-1)
-      elseif input:dim() ~= 1 then
-         error("input must be a vector or matrix")
-      end
-      
       self.gradWeight.THNN.LookupTable_accGradParameters(
          input:cdata(),
          gradOutput:cdata(),
