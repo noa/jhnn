@@ -46,14 +46,17 @@ void JHNN_(LookupTable_accGradParameters)(
         THError("input must be contiguous");
     if (!THTensor_(isContiguous)(scale))
         THError("scale must be contiguous");
-    if (THIndexTensor_(nDimension)(input) != 2)
-        THError("input must be matrix but input dim = %d", THIndexTensor_(nDimension)(input));
 
-    long numi = THIndexTensor_(size)(input, 0);
-    long numj = THIndexTensor_(size)(input, 1);
+    /* if (THIndexTensor_(nDimension)(input) != 2)
+       THError("input must be matrix but input dim = %d", THIndexTensor_(nDimension)(input)); */
 
+    /* long numi = THIndexTensor_(size)(input, 0); */
+    /* long numj = THIndexTensor_(size)(input, 1); */
+
+    /*
     if (numi != THTensor_(size)(scale, 0))
         THError("size mismatch between input and scale");
+    */
 
     THIndex_t *input_data = THIndexTensor_(data)(input);
     long numel = THIndexTensor_(nElement)(input);
@@ -64,6 +67,10 @@ void JHNN_(LookupTable_accGradParameters)(
         if (input_data[i] < 1 || input_data[i] > numw) {
             THError("input out of range");
         }
+    }
+
+    if (numel != THTensor_(size)(scale, 0)) {
+        THError("number of elements doesn't match scale dim");
     }
 
     gradOutput = THTensor_(newContiguous)(gradOutput);
@@ -91,16 +98,12 @@ void JHNN_(LookupTable_accGradParameters)(
             long start = tid * (numw/nthreads + 1);
             long end = start + (numw/nthreads + 1);
 
-            for (ij=0; ij<numel; ij++) {
-                if (input_data[i] != paddingValue) {
-                    i = ij / numj;
-                    j = ij % numj;
-                    long k = input_data[ij] - 1;
-                    if (k >= start && k < end) {
-                        real scale_ = scale_data[i];
-                        if (count_data) scale_ /= count_data[k];
-                        THBlas_(axpy)(stride, scale_, go + i*stride, 1, gw + k*stride, 1);
-                    }
+            if (input_data[i] != paddingValue) {
+                long k = input_data[ij] - 1;
+                if (k >= start && k < end) {
+                    real scale_ = scale_data[ij];
+                    if (count_data) scale_ /= count_data[k];
+                    THBlas_(axpy)(stride, scale_, go + i*stride, 1, gw + k*stride, 1);
                 }
             }
         }
@@ -110,14 +113,17 @@ void JHNN_(LookupTable_accGradParameters)(
     }
 #endif
 
-    for (i=0; i<numi; i++) {
-        for (j=0; j<numj; j++) {
-            long k = input_data[j + numj*i] - 1; //  elements in the same row are contiguous in memory for a matrix
-            real scale_ = scale_data[i];
-            if (count_data) scale_ /= count_data[k];
-            THBlas_(axpy)(stride, scale_, go + i*stride, 1, gw + k*stride, 1);
-        }
+for (i=0; i<numel; i++)
+{
+    if (input_data[i] != paddingValue)
+    {
+        long k = input_data[i] - 1;
+        real scale_ = scale_data[i];
+        if (count_data) scale_ /= count_data[k];
+        THBlas_(axpy)(stride, scale_, go + i*stride, 1, gw + k*stride, 1);
     }
+}
+
 
     THTensor_(free)(gradOutput);
 }

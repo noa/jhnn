@@ -2,8 +2,8 @@
 
 -- Tester:
 unpack = unpack or table.unpack
-require 'cutorch'
-require 'libcujhu'
+
+require 'jhcunn'
 
 local mytest = torch.TestSuite()
 local tester = torch.Tester()
