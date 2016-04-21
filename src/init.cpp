@@ -7,6 +7,7 @@
 #include "Sample.c"
 #include "LogScale.c"
 #include "Scale.c"
+#include "Encode.c"
 
 LUA_EXTERNC DLL_EXPORT int luaopen_libjhu(lua_State *L);
 
@@ -20,6 +21,7 @@ int luaopen_libjhu(lua_State *L) {
     jhu_THSample_init(L);
     jhu_THLogScale_init(L);
     jhu_THScale_init(L);
+    jhu_Encode_init(L);
 
     return 1;
 }

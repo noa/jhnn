@@ -171,6 +171,34 @@ function mytest.LogSampleUnnormalized()
    tester:eq(S1,S2,0.1)
 end
 
+function mytest.Encode()
+   local N = 7
+   local dim = { 64, 128, 256, 512, 1024, 2048 }
+
+   local function naive(i, j, N, result)
+      result:copy(i)
+      return result:map(j, function(s, t) return s + (t-1)*N end)
+   end
+
+   for _, d in ipairs(dim) do
+      local input1 = torch.LongTensor(d):random(7)
+      local input2 = torch.LongTensor(d):random(7)
+
+      local t = torch.tic()
+      local gold = torch.LongTensor(d)
+      naive(input1, input2, N, gold)
+      local elapsed1 = torch.toc(t)
+
+      local result = torch.LongTensor(d)
+      t = torch.tic()
+      result.jhu.encode(input1, input2, N, result)
+      local elapsed2 = torch.toc(t)
+
+      tester:eq(gold, result)
+      tester:assertlt(elapsed2, elapsed1, "too slow")
+   end
+end
+
 function mytest.SampleUnnormalized()
    local D = 10
    local N = 50000
