@@ -171,13 +171,20 @@ function mytest.LogSampleUnnormalized()
    tester:eq(S1,S2,0.1)
 end
 
-function mytest.Encode()
+function mytest.EncodeDecode()
    local N = 7
    local dim = { 64, 128, 256, 512, 1024, 2048 }
 
-   local function naive(i, j, N, result)
+   local function encode(i, j, result)
       result:copy(i)
       return result:map(j, function(s, t) return s + (t-1)*N end)
+   end
+
+   local function decode(i, o1, o2)
+      for k = 1, i:size(1) do
+         o1[k] = ((i[k]-1) % N) + 1
+         o2[k] = math.floor(((i[k]-1) / N) + 1)
+      end
    end
 
    for _, d in ipairs(dim) do
@@ -186,16 +193,35 @@ function mytest.Encode()
 
       local t = torch.tic()
       local gold = torch.LongTensor(d)
-      naive(input1, input2, N, gold)
+      encode(input1, input2, gold)
       local elapsed1 = torch.toc(t)
 
       local result = torch.LongTensor(d)
       t = torch.tic()
-      result.jhu.encode(input1, input2, N, result)
+      result.jhu.encode(input1, input2, result, N)
       local elapsed2 = torch.toc(t)
 
       tester:eq(gold, result)
       tester:assertlt(elapsed2, elapsed1, "too slow")
+
+      -- decode to get inputs back
+      local decoded1 = torch.LongTensor(d)
+      local decoded2 = torch.LongTensor(d)
+
+      local t = torch.tic()
+      decode(result, decoded1, decoded2)
+      local elapsed1 = torch.toc(t)
+
+      tester:eq(decoded1, input1)
+      tester:eq(decoded2, input2)
+
+      local t = torch.tic()
+      result.jhu.decode(result, decoded1, decoded2, N)
+      local elapsed2 = torch.toc(t)
+      tester:assertlt(elapsed2, elapsed1, "too slow")
+
+      tester:eq(decoded1, input1)
+      tester:eq(decoded2, input2)
    end
 end
 
