@@ -3,6 +3,7 @@
 #include "THLogAdd.h"
 
 #include "LogSum.c"
+#include "LogSum1d.c"
 #include "LogSample.c"
 #include "Sample.c"
 #include "LogScale.c"
@@ -17,6 +18,7 @@ int luaopen_libjhu(lua_State *L) {
     lua_setglobal(L, "jhu");
 
     jhu_THLogSum_init(L);
+    jhu_THLogSum1d_init(L);
     jhu_THLogSample_init(L);
     jhu_THSample_init(L);
     jhu_THLogScale_init(L);

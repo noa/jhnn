@@ -38,6 +38,16 @@ function mytest.LogSum()
    end
 end
 
+function mytest.LogSum1DSpecialPurpose()
+   local D = 10
+   local input  = torch.Tensor(D):normal(0, 1)
+   local inputCopy = input:clone()
+   local output = input.jhu.logsum1d(input)
+   tester:eq(input, inputCopy, 1e-4) -- doesn't change input
+   local gold = input:exp():sum()
+   tester:eq(gold, math.exp(output), 1e-4)
+end
+
 function mytest.LogSample1D()
    local D = 10
    local N = 50000
