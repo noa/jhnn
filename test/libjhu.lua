@@ -14,7 +14,7 @@ function mytest.LogSum()
    local inputCopy = input:clone()
    local output = torch.DoubleTensor(1)
    input.jhu.logsum(input, output)
-   tester:eq(input, inputCopy,1e-5)
+   tester:eq(input, inputCopy, 1e-5)
    input:exp()
    local sum1 = input:sum()
    output:exp()
@@ -181,7 +181,7 @@ function mytest.LogSampleUnnormalized()
    tester:eq(S1,S2,0.1)
 end
 
-function mytest.EncodeDecode()
+function mytest.EncodeDecodeLong()
    local N = 7
    local dim = { 64, 128, 256, 512, 1024, 2048 }
 
@@ -217,6 +217,60 @@ function mytest.EncodeDecode()
       -- decode to get inputs back
       local decoded1 = torch.LongTensor(d)
       local decoded2 = torch.LongTensor(d)
+
+      local t = torch.tic()
+      decode(result, decoded1, decoded2)
+      local elapsed1 = torch.toc(t)
+
+      tester:eq(decoded1, input1)
+      tester:eq(decoded2, input2)
+
+      local t = torch.tic()
+      result.jhu.decode(result, decoded1, decoded2, N)
+      local elapsed2 = torch.toc(t)
+      tester:assertlt(elapsed2, elapsed1, "too slow")
+
+      tester:eq(decoded1, input1)
+      tester:eq(decoded2, input2)
+   end
+end
+
+function mytest.EncodeDecodeDouble()
+   local N = 7
+   local dim = { 64, 128, 256, 512, 1024, 2048 }
+
+   local function encode(i, j, result)
+      result:copy(i)
+      return result:map(j, function(s, t) return s + (t-1)*N end)
+   end
+
+   local function decode(i, o1, o2)
+      for k = 1, i:size(1) do
+         o1[k] = ((i[k]-1) % N) + 1
+         o2[k] = math.floor(((i[k]-1) / N) + 1)
+      end
+   end
+
+   for _, d in ipairs(dim) do
+      local input1 = torch.DoubleTensor(d):random(7)
+      local input2 = torch.DoubleTensor(d):random(7)
+
+      local t = torch.tic()
+      local gold = torch.DoubleTensor(d)
+      encode(input1, input2, gold)
+      local elapsed1 = torch.toc(t)
+
+      local result = torch.DoubleTensor(d)
+      t = torch.tic()
+      result.jhu.encode(input1, input2, result, N)
+      local elapsed2 = torch.toc(t)
+
+      tester:eq(gold, result)
+      tester:assertlt(elapsed2, elapsed1, "too slow")
+
+      -- decode to get inputs back
+      local decoded1 = torch.DoubleTensor(d)
+      local decoded2 = torch.DoubleTensor(d)
 
       local t = torch.tic()
       decode(result, decoded1, decoded2)
