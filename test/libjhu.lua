@@ -55,12 +55,27 @@ function mytest.LogSample1D()
    local N1 = torch.multinomial(P, N, true)
    local S1 = N1:double():sum() / N
    local logP = P:log()
-   -- local tmp = torch.zeros(1):double()
-   -- local N2 = torch.zeros(1):double()
    local tmp = torch.LongTensor(1):zero()
    local N2 = torch.LongTensor(1):zero()
    for n = 1, N do
       logP.jhu.logsample(logP:clone(), tmp)
+      N2:add(tmp)
+   end
+   local S2 = N2[1] / N
+   tester:eq(S1, S2, 0.1)
+end
+
+function mytest.LogSampleD1D()
+   local D = 10
+   local N = 50000
+   local P = torch.DoubleTensor(D):uniform(0, 1)
+   local N1 = torch.multinomial(P, N, true)
+   local S1 = N1:double():sum() / N
+   local logP = P:log()
+   local tmp = torch.DoubleTensor(1):zero()
+   local N2 = torch.DoubleTensor(1):zero()
+   for n = 1, N do
+      logP.jhu.logsampled(logP:clone(), tmp)
       N2:add(tmp)
    end
    local S2 = N2[1] / N
@@ -134,6 +149,39 @@ function mytest.LogSampleNormalized()
    tester:eq(S1, S2, 0.1)
 end
 
+function mytest.LogSampleDNormalized()
+   local D = 10
+   local N = 50000
+   local P = torch.DoubleTensor(D, D):uniform(0, 1)
+   for d = 1, D do
+      local Z = P[d]:sum()
+      P[d]:div(Z)
+   end
+
+   -- Take some samples for the distributions in probability space:
+   local N1 = torch.multinomial(P, N, true)
+   local S1 = N1:double():sum(2):div(N):view(-1)
+
+   -- Now convert to log space
+   local logP = torch.log(P)
+   -- local tmp = torch.zeros(D):long()
+   local N2 = torch.zeros(D)
+   local tmp = torch.DoubleTensor(D):zero()
+   --local N2 = torch.LongTensor(D):zero()
+   for n = 1, N do
+      logP.jhu.logsampled(logP:clone(), tmp)
+      N2:add(tmp:double())
+   end
+   local S2 = N2:div(N)
+
+   -- print('S1')
+   -- print(S1)
+   -- print('S2')
+   -- print(S2)
+
+   tester:eq(S1, S2, 0.1)
+end
+
 function mytest.SampleNormalized()
    local D = 10
    local N = 50000
@@ -175,6 +223,29 @@ function mytest.LogSampleUnnormalized()
    --local N2 = torch.LongTensor(D):zero()
    for n = 1, N do
       logP.jhu.logsample(logP:clone(), tmp)
+      N2:add(tmp:double())
+   end
+   local S2 = N2:div(N)
+   tester:eq(S1,S2,0.1)
+end
+
+function mytest.LogSampleDUnnormalized()
+   local D = 10
+   local N = 50000
+   local P = torch.DoubleTensor(D, D):uniform(0, 1)
+
+   -- Take some samples for the distributions in probability space:
+   local N1 = torch.multinomial(P, N, true)
+   local S1 = N1:double():sum(2):div(N):view(-1)
+
+   -- Now convert to log space
+   local logP = torch.log(P)
+   -- local tmp = torch.zeros(D):double()
+   local N2 = torch.zeros(D)
+   local tmp = torch.DoubleTensor(D):zero()
+   --local N2 = torch.LongTensor(D):zero()
+   for n = 1, N do
+      logP.jhu.logsampled(logP:clone(), tmp)
       N2:add(tmp:double())
    end
    local S2 = N2:div(N)
