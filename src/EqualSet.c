@@ -8,7 +8,7 @@
 static int jhu_THEqualSet(lua_State *L) {
     int narg = lua_gettop(L);
     if (narg != 4) {
-        THError("expecting exactly 3 arguments");
+        THError("expecting exactly 4 arguments");
     }
 
     THDoubleTensor *output = (THDoubleTensor *)luaT_checkudata(L, 1,
@@ -29,14 +29,28 @@ static int jhu_THEqualSet(lua_State *L) {
     int val1 = lua_tonumber(L, 3);
     int val2 = lua_tonumber(L, 4);
 
+    if (val1 == 0) THError("val should be 1-indexed or -1 if unused");
+
+    //printf("val1 = %d val2 = %d\n", val1, val2);
+
     int t;
 
+    if(val1 > 0) {
 #pragma omp parallel for
-    for(t=0;t<size1;++t) {
-        if((int)input_data[t] == val1) {
-            output_data[t] = input_data[t];
-        } else {
-            output_data[t] = (double)val2;
+        for(t=0;t<size1;++t) {
+            if((int)input_data[t] == val1) {
+                output_data[t] = input_data[t];
+            } else {
+                output_data[t] = (double)val2;
+            }
+        }
+    } else {
+        for(t=0;t<size1;++t) {
+            if((int)input_data[t] == (int)output_data[t]) {
+                output_data[t] = input_data[t];
+            } else {
+                output_data[t] = (double)val2;
+            }
         }
     }
 
