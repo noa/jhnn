@@ -206,6 +206,40 @@ function mytest.SampleNormalized()
    tester:eq(S1, S2, 0.1)
 end
 
+function mytest.LogSampleZeroStressTest()
+   local R = 100
+   local batchSize = 4
+   local dim = 5
+   local N = 5000
+   for _ = 1, R do
+      local P = torch.DoubleTensor(batchSize, dim):uniform(0, 1)
+      for i = 1, batchSize do
+         local nzero = math.random(dim-1)
+         for _ = 1, nzero do
+            local zero_idx = math.random(dim)
+            P[i][zero_idx] = 0
+         end
+         P[i]:div(P[i]:sum())
+      end
+      for i = 1, batchSize do
+         assert( P[i]:sum() > 0.99 and P[i]:sum() < 1.01 )
+      end
+      local logP = torch.log(P)
+      local C = torch.zeros(batchSize, dim)
+      local tmp = torch.LongTensor(batchSize):zero()
+      for _ = 1, N do
+         logP.jhu.logsample(logP:clone(), tmp)
+         for i = 1, batchSize do
+            local idx = tmp[i]
+            assert(idx > 0 and idx <= dim)
+            C[i][idx] = C[i][idx] + 1
+         end
+      end
+      local approx = C:div(N)
+      tester:eq(P, approx, 0.1)
+   end
+end
+
 function mytest.LogSampleUnnormalized()
    local D = 10
    local N = 50000
